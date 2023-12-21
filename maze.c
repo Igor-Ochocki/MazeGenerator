@@ -19,6 +19,7 @@ int main(int argc, char **argv)
         (&adjacency_list[i])->adjacent = NULL;
     }
     generateMaze(&adjacency_list, n);
+    free(adjacency_list);
     printMaze(adjacency_list, n);
 }
 
@@ -146,5 +147,6 @@ void removeAdjacentNodeAtIndex(linked_list_t **linked_list, int index)
     {
         second = second->next;
     }
+    free(first->next);
     first->next = second;
 }
