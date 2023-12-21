@@ -11,18 +11,15 @@ int main(int argc, char **argv)
     int n = atoi(argv[1]);
     int i;
     srand(time(NULL));
-    for (int z = 0; z < 100000; z++)
+    adjacency_list_t *adjacency_list = malloc(sizeof *adjacency_list * n * n);
+    for (i = 0; i < n * n; i++)
     {
-        adjacency_list_t *adjacency_list = malloc(sizeof *adjacency_list * n * n);
-        for (i = 0; i < n * n; i++)
-        {
-            adjacency_list[i].node = i;
-            adjacency_list[i].weight = (double)rand() / RAND_MAX * 10;
-            (&adjacency_list[i])->adjacent = NULL;
-        }
-        generateMaze(&adjacency_list, n);
+        adjacency_list[i].node = i;
+        adjacency_list[i].weight = (double)rand() / RAND_MAX * 10;
+        (&adjacency_list[i])->adjacent = NULL;
     }
-    // printMaze(adjacency_list, n);
+    generateMaze(&adjacency_list, n);
+    printMaze(adjacency_list, n);
 }
 
 void printMaze(adjacency_list_t *adjacency_list, int mazeSize)

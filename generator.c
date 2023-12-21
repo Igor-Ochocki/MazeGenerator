@@ -29,7 +29,7 @@ void DFS(int current, adjacency_list_t **adjacency_list, int *visited, int mazeS
         {
             addAdjacentNode(&(adjacency_list_array[current - 1].adjacent), randomNext - 1);
             addAdjacentNode(&(adjacency_list_array[randomNext - 1].adjacent), current - 1);
-            //printMaze(*adjacency_list, mazeSize);
+            printMaze(*adjacency_list, mazeSize);
             DFS(randomNext, adjacency_list, visited, mazeSize);
         }
     }
