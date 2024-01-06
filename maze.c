@@ -9,7 +9,19 @@
 
 int main(int argc, char **argv)
 {
+    if(argc != 2){
+        printf("The amount of arguments passed is invalid. Please provide only 1 argument.\n");
+        return 1;
+    }
     int n = atoi(argv[1]);
+    if(n == 0){
+        printf("Invalid argument passed : %s. Please provide valid argument (1-10)\n", argv[1]);
+        return 1;
+    }
+    if(n < 2 || n > 10){
+        printf("Invalid argument value passed : %s. Please provide valid argument value (1-10)\n", argv[1]);
+        return 1;
+    }
     int i;
     srand(time(NULL));
     adjacency_list_t *adjacency_list = malloc(sizeof *adjacency_list * n * n);
