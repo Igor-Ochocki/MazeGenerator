@@ -23,7 +23,7 @@ void DFS(int current, adjacency_list_t **adjacency_list, int *visited, int mazeS
         {
             addAdjacentNode(&(adjacency_list_array[current - 1].adjacent), randomNext - 1);
             addAdjacentNode(&(adjacency_list_array[randomNext - 1].adjacent), current - 1);
-            printMaze(*adjacency_list, mazeSize);
+            printMaze(*adjacency_list, mazeSize, 0, 0);
             DFS(randomNext, adjacency_list, visited, mazeSize);
         }
     }
@@ -61,7 +61,7 @@ void removeRandomWalls(adjacency_list_t **adjacency_list, int mazeSize)
                 addAdjacentNode(&(adjacency_list_array[randomNode].adjacent), adjacentNodes->node - 1);
                 addAdjacentNode(&(adjacency_list_array[adjacentNodes->node - 1].adjacent), randomNode);
                 wallsRemoved++;
-                printMaze(*adjacency_list, mazeSize);
+                printMaze(*adjacency_list, mazeSize, 0, 0);
                 if (wallsRemoved == mazeSize - 2 || counter > 50)
                     break;
             }

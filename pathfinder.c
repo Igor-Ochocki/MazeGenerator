@@ -4,9 +4,14 @@
 void findPathsInAdjacencyList(adjacency_list_t *adjacency_list, int startNode, int endNode, int mazeSize)
 {
     int *visited = calloc((mazeSize * mazeSize) + 1, sizeof *visited);
-    fullDFS(startNode, adjacency_list, visited, endNode, mazeSize, 0, NULL);
+    int pathCount = 0;
+    double shortest_path_weight = mazeSize * mazeSize * 10;
+    fullDFS(startNode, adjacency_list, visited, startNode, endNode, mazeSize, 0, NULL, &shortest_path_weight, &pathCount);
+    printf("Number of paths found: %d\n", pathCount);
+    printf("Shortest path weight: %.2f\n", shortest_path_weight);
 }
-void fullDFS(int node, adjacency_list_t *adjacency_list, int *visited, int endNode, int mazeSize, int pathWeight, linked_list_t *currentPath)
+
+void fullDFS(int node, adjacency_list_t *adjacency_list, int *visited, int startNode, int endNode, int mazeSize, double pathWeight, linked_list_t *currentPath, double *shortest_path_weight, int *pathCount)
 {
     linked_list_t *curr = currentPath;
     pathWeight += adjacency_list[node - 1].weight;
@@ -18,8 +23,11 @@ void fullDFS(int node, adjacency_list_t *adjacency_list, int *visited, int endNo
     visited[node] = 1;
     if (node == endNode)
     {
-        printMazePath(adjacency_list, mazeSize, currentPath);
-        printf("Weight of found path : %d\n", pathWeight);
+        (*pathCount)++;
+        printMazePath(adjacency_list, mazeSize, currentPath, startNode, endNode);
+        printf("Weight of found path : %.2f\n\n", pathWeight);
+        if (pathWeight < *shortest_path_weight)
+            *shortest_path_weight = pathWeight;
         popAdjacentNode(&currentPath);
         visited[node] = 0;
         return;
@@ -27,23 +35,35 @@ void fullDFS(int node, adjacency_list_t *adjacency_list, int *visited, int endNo
     linked_list_t *adjacent = adjacency_list[node - 1].adjacent;
     while (adjacent != NULL)
     {
-        if(visited[(adjacent->node)+1] != 1)
-            fullDFS((adjacent->node) + 1, adjacency_list, visited, endNode, mazeSize, pathWeight, currentPath);
+        if (visited[(adjacent->node) + 1] != 1)
+            fullDFS((adjacent->node) + 1, adjacency_list, visited, startNode, endNode, mazeSize, pathWeight, currentPath, shortest_path_weight, pathCount);
         adjacent = adjacent->next;
     }
     popAdjacentNode(&currentPath);
     visited[node] = 0;
 }
-void printMazePath(adjacency_list_t *adjacency_list, int mazeSize, linked_list_t *solutionPath)
+
+void printMazePath(adjacency_list_t *adjacency_list, int mazeSize, linked_list_t *solutionPath, int entranceCell, int exitCell)
 {
     for (int i = 0; i < mazeSize * 2 + 1; i++)
     {
+        if (entranceCell != 0 && entranceCell < mazeSize + 1 && i == entranceCell * 2 - 1)
+        {
+            printf("#");
+            continue;
+        }
         printf("%s", WALL_CHARACTER);
     }
     printf("\n");
     for (int i = 0; i < mazeSize; i++)
     {
-        printf("%s", WALL_CHARACTER);
+        if (entranceCell != 0 && entranceCell != 1 && entranceCell % mazeSize == 1 && i == entranceCell / mazeSize)
+            printf("#");
+        else
+            printf("%s", WALL_CHARACTER);
+        char *edge = WALL_CHARACTER;
+        if (exitCell != 0 && exitCell % mazeSize == 0 && i == exitCell / mazeSize - 1)
+            edge = "#";
         for (int j = i * mazeSize; j < (i + 1) * mazeSize; j++)
         {
             if ((j + 1) % mazeSize != 0)
@@ -51,19 +71,19 @@ void printMazePath(adjacency_list_t *adjacency_list, int mazeSize, linked_list_t
                 // Order is important
                 if (isNodeInLinkedList(j + 1, adjacency_list[j].adjacent) && areNodesConnectedInPath(solutionPath, j + 2, j + 1))
                     printf("##");
-                else if(isNodeInLinkedList(j + 1, adjacency_list[j].adjacent) && (areNodesConnectedInPath(solutionPath, j+1, j+1+mazeSize) || areNodesConnectedInPath(solutionPath, j+1-mazeSize, j + 1)))
+                else if (isNodeInLinkedList(j + 1, adjacency_list[j].adjacent) && (areNodesConnectedInPath(solutionPath, j + 1, j + 1 + mazeSize) || areNodesConnectedInPath(solutionPath, j + 1 - mazeSize, j + 1) || areNodesConnectedInPath(solutionPath, j, j + 1)))
                     printf("# ");
                 else if (isNodeInLinkedList(j + 1, adjacency_list[j].adjacent) && !areNodesConnectedInPath(solutionPath, j + 2, j + 1))
                     printf("  ");
-                else if (areNodesConnectedInPath(solutionPath, j + 1, j + 1 - mazeSize) || areNodesConnectedInPath(solutionPath, j + 1, j + 1 + mazeSize))
+                else if (areNodesConnectedInPath(solutionPath, j + 1, j + 1 - mazeSize) || areNodesConnectedInPath(solutionPath, j + 1, j + 1 + mazeSize) || areNodesConnectedInPath(solutionPath, j, j + 1))
                     printf("#%s", WALL_CHARACTER);
                 else
                     printf(" %s", WALL_CHARACTER);
             }
-            else if (!areNodesConnectedInPath(solutionPath, j, j + 1) && ! areNodesConnectedInPath(solutionPath, j + 1, j + 1 - mazeSize))
-                printf(" %s", WALL_CHARACTER);
+            else if (!areNodesConnectedInPath(solutionPath, j, j + 1) && !areNodesConnectedInPath(solutionPath, j + 1, j + 1 - mazeSize) && !areNodesConnectedInPath(solutionPath, j + 1, j + 1 + mazeSize))
+                printf(" %s", edge);
             else
-                printf("#%s", WALL_CHARACTER);
+                printf("#%s", edge);
         }
         printf("\n");
         printf("%s", WALL_CHARACTER);
@@ -82,7 +102,14 @@ void printMazePath(adjacency_list_t *adjacency_list, int mazeSize, linked_list_t
         }
         else
             for (int k = 0; k < mazeSize * 2; k++)
+            {
+                if (exitCell != 0 && exitCell != 90 && exitCell / mazeSize == mazeSize - 1 && k == (exitCell % mazeSize - 1) * 2)
+                {
+                    printf("#");
+                    continue;
+                }
                 printf("%s", WALL_CHARACTER);
+            }
         printf("\n");
     }
 }

@@ -19,25 +19,40 @@ int main(int argc, char **argv)
         adjacency_list[i].weight = (double)rand() / RAND_MAX * 10;
         (&adjacency_list[i])->adjacent = NULL;
     }
+    int wallsSelect = getRandomValue(2);
+    int randomEntranceCell = wallsSelect == 0 ? getRandomValue(n) + 1 : n * getRandomValue(n) + 1;
+    int randomExitCell = wallsSelect == 0 ? getRandomValue(n) + (n * (n - 1)) + 1 : n * getRandomValue(n) + n;
     generateMaze(&adjacency_list, n);
-    printMaze(adjacency_list, n);
-    findPathsInAdjacencyList(adjacency_list, 1, n * n, n);
+    printMaze(adjacency_list, n, randomEntranceCell, randomExitCell);
+    printAdjacencyList(adjacency_list, n);
+    findPathsInAdjacencyList(adjacency_list, randomEntranceCell, randomExitCell, n);
     free(adjacency_list);
 }
 
-void printMaze(adjacency_list_t *adjacency_list, int mazeSize)
+void printMaze(adjacency_list_t *adjacency_list, int mazeSize, int entranceCell, int exitCell)
 {
     usleep(10000);
     system("clear");
     printf("Generated maze: \n");
     for (int i = 0; i < mazeSize * 2 + 1; i++)
     {
+        if (entranceCell != 0 && entranceCell < mazeSize + 1 && i == entranceCell * 2 - 1)
+        {
+            printf(" ");
+            continue;
+        }
         printf("%s", WALL_CHARACTER);
     }
     printf("\n");
     for (int i = 0; i < mazeSize; i++)
     {
-        printf("%s", WALL_CHARACTER);
+        if (entranceCell != 0 && entranceCell != 1 && entranceCell % mazeSize == 1 && i == entranceCell / mazeSize)
+            printf(" ");
+        else
+            printf("%s", WALL_CHARACTER);
+        char *edge = WALL_CHARACTER;
+        if (exitCell != 0 && exitCell % mazeSize == 0 && i == exitCell / mazeSize - 1)
+            edge = " ";
         for (int j = i * mazeSize; j < (i + 1) * mazeSize; j++)
         {
             if ((j + 1) % mazeSize != 0)
@@ -48,7 +63,7 @@ void printMaze(adjacency_list_t *adjacency_list, int mazeSize)
                     printf(" %s", WALL_CHARACTER);
             }
             else
-                printf(" %s", WALL_CHARACTER);
+                printf(" %s", edge);
         }
         printf("\n");
         printf("%s", WALL_CHARACTER);
@@ -65,7 +80,14 @@ void printMaze(adjacency_list_t *adjacency_list, int mazeSize)
         }
         else
             for (int k = 0; k < mazeSize * 2; k++)
+            {
+                if (exitCell != 0 && exitCell != 90 && exitCell / mazeSize == mazeSize - 1 && k == (exitCell % mazeSize - 1) * 2)
+                {
+                    printf(" ");
+                    continue;
+                }
                 printf("%s", WALL_CHARACTER);
+            }
         printf("\n");
     }
 
@@ -142,24 +164,46 @@ void removeAdjacentNodeAtIndex(linked_list_t **linked_list, int index)
     free(first->next);
     first->next = second;
 }
+
 void popAdjacentNode(linked_list_t **linked_list)
 {
-    if(*linked_list == NULL)
+    if (*linked_list == NULL)
         return;
     linked_list_t *current = *linked_list;
-    if(current->next == NULL){
+    if (current->next == NULL)
+    {
         *linked_list = NULL;
         return;
     }
     int i = 0;
-    while(current->next != NULL){
+    while (current->next != NULL)
+    {
         i++;
         current = current->next;
     }
     linked_list_t *new_last = *linked_list;
     i--;
-    while(i--) {
+    while (i--)
+    {
         new_last = new_last->next;
     }
+    free(new_last->next);
     new_last->next = NULL;
+}
+
+void printAdjacencyList(adjacency_list_t *adjacency_list, int mazeSize)
+{
+    printf("Maze structure (adjacency list) and cell weights\n");
+    for (int i = 0; i < mazeSize * mazeSize; i++)
+    {
+        printf("%d (%.2f): ", adjacency_list[i].node + 1, adjacency_list[i].weight);
+        linked_list_t *adjacent_nodes = adjacency_list[i].adjacent;
+        while (adjacent_nodes != NULL)
+        {
+            printf("%d ", adjacent_nodes->node + 1);
+            adjacent_nodes = adjacent_nodes->next;
+        }
+        printf("\n");
+    }
+    printf("\n");
 }
