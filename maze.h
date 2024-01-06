@@ -17,6 +17,7 @@ void printMaze( adjacency_list_t *adjacency_list, int mazeSize );
 void addAdjacentNode( linked_list_t **linked_list, int node );
 int getRandomAdjacentNode( linked_list_t **linked_list );
 void removeAdjacentNodeAtIndex( linked_list_t **linked_list, int index);
+void popAdjacentNode( linked_list_t **linked_list );
 int getRandomValue( int maxValue );
 
 #endif

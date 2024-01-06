@@ -5,6 +5,7 @@
 #include "generator.h"
 #include <math.h>
 #include <unistd.h>
+#include "pathfinder.h"
 
 int main(int argc, char **argv)
 {
@@ -19,25 +20,16 @@ int main(int argc, char **argv)
         (&adjacency_list[i])->adjacent = NULL;
     }
     generateMaze(&adjacency_list, n);
-    free(adjacency_list);
     printMaze(adjacency_list, n);
+    findPathsInAdjacencyList(adjacency_list, 1, n * n, n);
+    free(adjacency_list);
 }
 
 void printMaze(adjacency_list_t *adjacency_list, int mazeSize)
 {
-    // for (int i = 0; i < mazeSize * mazeSize; i++)
-    // {
-    //     printf("%d: %g\n", adjacency_list[i].node, adjacency_list[i].weight);
-    //     linked_list_t *adjacent = adjacency_list[i].adjacent;
-    //     while (adjacent != NULL)
-    //     {
-    //         printf("%d ", adjacent->node);
-    //         adjacent = adjacent->next;
-    //     }
-    //     printf("\n");
-    // }
     usleep(10000);
     system("clear");
+    printf("Generated maze: \n");
     for (int i = 0; i < mazeSize * 2 + 1; i++)
     {
         printf("%s", WALL_CHARACTER);
@@ -149,4 +141,25 @@ void removeAdjacentNodeAtIndex(linked_list_t **linked_list, int index)
     }
     free(first->next);
     first->next = second;
+}
+void popAdjacentNode(linked_list_t **linked_list)
+{
+    if(*linked_list == NULL)
+        return;
+    linked_list_t *current = *linked_list;
+    if(current->next == NULL){
+        *linked_list = NULL;
+        return;
+    }
+    int i = 0;
+    while(current->next != NULL){
+        i++;
+        current = current->next;
+    }
+    linked_list_t *new_last = *linked_list;
+    i--;
+    while(i--) {
+        new_last = new_last->next;
+    }
+    new_last->next = NULL;
 }

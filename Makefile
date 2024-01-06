@@ -1,8 +1,10 @@
 compile:
 	cc -c generator.c
-	cc maze.c generator.o -o maze -lm
+	cc -c pathfinder.c
+	cc maze.c generator.o pathfinder.o -o maze -lm
 	rm -rf *.o
 debug:
 	cc -c generator.c
-	cc maze.c generator.o -o maze -ggdb -lm
+	cc -c pathfinder.c
+	cc maze.c generator.o pathfinder.o -o maze -ggdb -lm
 	rm -rf *.o
