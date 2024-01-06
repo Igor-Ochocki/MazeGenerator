@@ -1,6 +1,6 @@
+#include "maze.h"
 #include <stdlib.h>
 #include <stdio.h>
-#include "maze.h"
 #include <time.h>
 #include "generator.h"
 #include <math.h>

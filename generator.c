@@ -1,4 +1,5 @@
 #include "generator.h"
+#include <stdlib.h>
 #include <stdio.h>
 
 void generateMaze(adjacency_list_t **adjacency_list, int mazeSize)

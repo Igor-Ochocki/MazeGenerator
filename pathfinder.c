@@ -1,4 +1,6 @@
 #include "pathfinder.h"
+#include "generator.h"
+#include <stdio.h>
 #include <stdlib.h>
 
 void findPathsInAdjacencyList(adjacency_list_t *adjacency_list, int startNode, int endNode, int mazeSize)
